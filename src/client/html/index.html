@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Royal chess</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link rel="shortcut icon" href="/assets/icon64.png">
+  <meta property="description" content="Chess - inspired royal battle game.">
+  <meta property="og:title" content="Royal chess">
+  <meta property="og:image" content="/assets/icon1200.png">
+</head>
+<body>
+  <canvas id="game-canvas"></canvas>
+  <div id="play-menu" class="hidden">
+    <h1>Royal chess</h1>
+    <p>
+      Click and move the chess figures,<br>
+      black or white on your choice.
+    </p>
+    <p><br></p>
+    <p>
+    <image id="king-w" src="king-white.svg">
+    <image id="king-b" src="king-black.svg">
+    </p>
+    <p><br></p>
+    <input type="text" id="username-input" placeholder="Username" />
+    <button id="play-button">PLAY</button>
+  </div>
+  <div id="leaderboard" class="hidden">
+    <table>
+      <tr>
+        <th>Username</th>
+        <th>Score</th>
+      </tr>
+      <tr><td></td><td></td></tr>
+      <tr><td></td><td></td></tr>
+      <tr><td></td><td></td></tr>
+      <tr><td></td><td></td></tr>
+      <tr><td></td><td></td></tr>
+    </table>
+  </div>
+  <div id="disconnect-modal" class="hidden">
+    <div>
+      <h2>Disconnected from Server </h2>
+      <hr />
+      <button id="reconnect-button">RECONNECT</button>
+    </div>
+  </div>
+</body>
+</html>
