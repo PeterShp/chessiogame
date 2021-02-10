@@ -163,7 +163,7 @@ const red_pawn = GetAsset('pawn-white.svg/white=ff0000');
 ```
 ... помещала в red_pawn изображение пешки, где весь белый цвет заменен на красный (к примеру). Если мы посмотрим на структуру svg фала, то кажется, для замены цвета 
 достаточно в тексте svg поменять **ffffff** на желаемый цвет, в данном случае **ff0000**.
-```xml
+```svg
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
 <svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="45" height="45">
@@ -175,7 +175,7 @@ const red_pawn = GetAsset('pawn-white.svg/white=ff0000');
 app.use((req, res, next) => {
   if (req.path.includes('.svg')) {
     console.log(req.path);// req.path содержит относительный путь, в нашем случае это '/pawn-white.svg/white=ff0000'
-    /// код ответа клиенту писать тут.
+    // код ответа клиенту писать тут.
     return;
   }
   next();// обработка запросов, которые не касатся модификации svg
