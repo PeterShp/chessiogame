@@ -162,7 +162,7 @@ createUpdate(player, leaderboard) {
 const red_pawn = GetAsset('pawn-white.svg/white=ff0000');
 ```
 ... помещала в red_pawn изображение пешки, где весь белый цвет заменен на красный (к примеру). Если мы посмотрим на структуру svg фала, то кажется, для замены цвета 
-достаточно в тексе svg поменять **ffffff** на желаемый цвет, в данном случае **ff0000**.
+достаточно в тексте svg поменять **ffffff** на желаемый цвет, в данном случае **ff0000**.
 ```xml
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
