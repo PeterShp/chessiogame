@@ -7,7 +7,7 @@
 Инициализируются сетевые интерфейсы и библиотеки
 
 
-```
+```js
 // Setup an Express server
 const app = express();
 
@@ -28,7 +28,7 @@ const io = socketio(server);
 В этом случае в сообщениях между клиентом и сервером нужно будет указывать, к какому именно экземпляру Game относится сообщение.
 
 
-```
+```js
 // Setup the Game
 const game = new Game();
 ```
@@ -38,7 +38,7 @@ const game = new Game();
 Ставятся обработчики сообщений от клиентов, по заданному событию вызывается функция. Constants.MSG_TYPES… - это просто строки, маркеры сообщений.
 
 
-```
+```js
 // Listen for socket.io connections, look Constants.js, MSG_TYPES for message types
 io.on('connection', socket => {
   console.log('Player connected!', socket.id);
@@ -55,7 +55,7 @@ io.on('connection', socket => {
 Обратите внимание, в функцию обработчика передается 1 параметр - это те данные в виде объекта, которые послал клиент, используя **socket.emit**
 
 
-```
+```js
   socket.emit(Constants.MSG_TYPES.MOVE, { /*your data there as object*/  });//клиентский код!!!
 ```
 
@@ -64,7 +64,7 @@ io.on('connection', socket => {
 В функции обработчика событий можно использовать this - это сокет (по сути - клиент), от которого поступило сообщение. Пример
 
 
-```
+```js
   socket.on(Constants.MSG_TYPES.MOVE, handleMove);//регистрируем обрабочик сообщений 'move'
 
 function handleMove(move) {
@@ -84,7 +84,7 @@ function handleMove(move) {
 Это лишь часть ф-ии update(), которая отвечает за рассылку сообщений клиентам.
 
 
-```
+```js
     // Send a game update to each player every other time
     if (this.shouldSendUpdate) {
       const leaderboard = this.getLeaderboard();
@@ -102,7 +102,7 @@ function handleMove(move) {
 Также обратите внимание на конструктор - именно там устанавливается интервал вызова ф-ии **update()** - 
 
 
-```
+```js
     setInterval(this.update.bind(this), 1000 / 20);
 ```
 
@@ -110,7 +110,7 @@ function handleMove(move) {
 
 **AddPlayer** вызывается, когда присоединяется игрок, туже создается начальная конфигурация фигур.
 
-```
+```js
   addPlayer(socket, username) {
     this.sockets[socket.id] = socket;
 
@@ -126,7 +126,7 @@ function handleMove(move) {
 
 Функция **createUpdate** собирает данные для отправки клиентам, каждому клиенту - свой набор данных.
 
-```
+```js
 createUpdate(player, leaderboard) {
     return {
       t: Date.now(),
@@ -139,14 +139,11 @@ createUpdate(player, leaderboard) {
 ```
 
 Обратите внимание, для сбора посылаемых данных используется ф-я **serializeForUpdate**. Эта ф-я есть в каждом классе, наследованном от Object.
-
-
- \
 Структура **player.js** и **figure.js** в свете описанного самоочевидна, там есть конструктор и **serializeForUpdate**. 
 Важный момент - клиент видит не просто ту структуру, которую вы создали на сервере, а _**только**_ то, что сформировыно в ф-ии (в данном случае Figure)
 
 
-```
+```js
   // this function used to organise data to send it to players
   serializeForUpdate() {
     return {
@@ -161,12 +158,12 @@ createUpdate(player, leaderboard) {
 
 ## Поддержка разноцветных SVG изображений
 Любой ассет в игре мы можем получить с помощью команды **GetAsset('asset_name')**. Если это SVG файл, то не получится изменить цвет его частей на уровне клиента/рендера. Мы попробуем сделать это на уровне сервера. Например, было бы хорошо, чтобы команда
-```
+```js
 const red_pawn = GetAsset('pawn-white.svg/white=ff0000');
 ```
 ... помещала в red_pawn изображение пешки, где весь белый цвет заменен на красный (к примеру). Если мы посмотрим на структуру svg фала, то кажется, для замены цвета 
 достаточно в тексе svg поменять ffffff на желаемый цвет, в данном случае ff0000.
-```
+```xml
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
 <svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="45" height="45">
@@ -174,7 +171,7 @@ const red_pawn = GetAsset('pawn-white.svg/white=ff0000');
 </svg>
 ```
 Для этого мы модифицируем server.js так, чтобы запросы на скачивание svg файлов обрабатывались с учетом опции **/white=ff0000**. Это делается добавлением в  server.js дополнительного обработчика
-```
+```js
 app.use((req, res, next) => {
   if (req.path.includes('.svg')) {
     console.log(req.path);// req.path contains relative path to the required file, in our case it is '/pawn-white.svg/white=ff0000'
@@ -185,7 +182,7 @@ app.use((req, res, next) => {
 });
 ```
 В обработчике мы должны проверить, есть ли в строке **req.path** подстрока **/white=**, считать цвет, считать оригинальный файл и заменить в нем ffffff на наш цвет. Потом мы должны отправить измененный файл клиенту. Для того, чтобы клиент понял, что ему отправляют именно svg, ответ должен быть таким
-```
+```js
 res.writeHead(200, { 'Content-Type': 'image/svg+xml' });
 res.write(data);// в data - модифицированный svg
 res.end();
