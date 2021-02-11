@@ -4,12 +4,35 @@ const webpack = require('webpack');
 const webpackDevMiddleware = require('webpack-dev-middleware');
 const socketio = require('socket.io');
 
+const fs = require('fs');
 const Constants = require('../shared/constants');
 const Game = require('./game');
 const webpackConfig = require('../../webpack.dev.js');
 
 // Setup an Express server
 const app = express();
+
+app.use((req, res, next) => {
+  if (req.path.includes('.svg')) {
+    const way = req.path;
+    const white = way.indexOf('/white=');
+    const black = way.indexOf('/black=');
+    if (white !== -1 || black !== -1) {
+      let data = fs.readFileSync(`./public${way.substring(0, way.indexOf('.svg') + 4)}`, 'utf8');
+      if (white !== -1) {
+        data = data.replace(new RegExp('ffffff', 'g'), way.substring(white + 7, white + 13));
+      }
+      if (black !== -1) {
+        data = data.replace(new RegExp('000000', 'g'), way.substring(black + 7, black + 13));
+      }
+      res.writeHead(200, { 'Content-Type': 'image/svg+xml' });
+      res.write(data);
+      res.end();
+      return;
+    }
+  }
+  next();
+});
 
 // Set "public" folder as the downloads source
 app.use(express.static('public'));
