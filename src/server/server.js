@@ -20,7 +20,7 @@ app.use((req, res, next) => {
     if (white > 0 || black > 0) {
       let svg = fs.readFileSync(`./public${url.substring(0, url.indexOf('.svg') + 4)}`, 'utf8');
       if (white > 0) svg = svg.replace(/ffffff/g, url.substring(white + 7, white + 13));
-      if (black > 0) svg = svg.replace(/ffffff/g, url.substring(black + 7, black + 13));
+      if (black > 0) svg = svg.replace(/000000/g, url.substring(black + 7, black + 13));
       res.writeHead(200, { 'Content-Type': 'image/svg+xml' });
       res.write(svg);
       res.end();
