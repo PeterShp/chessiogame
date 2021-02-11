@@ -187,3 +187,23 @@ res.writeHead(200, { 'Content-Type': 'image/svg+xml' });// указываем в
 res.write(data);// в data - модифицированный svg
 res.end();// сигнализируем, что передача окончена
 ```
+В итоге получаем такой обработчик
+```js
+app.use((req, res, next) => {
+  if (req.path.includes('.svg/')) {
+    const url = req.path;
+    const white = url.indexOf('/white=');
+    const black = url.indexOf('/black=');
+    if (white > 0 || black > 0) {
+      let svg = fs.readFileSync(`./public${url.substring(0, url.indexOf('.svg') + 4)}`, 'utf8');
+      if (white > 0) svg = svg.replace(/ffffff/g, url.substring(white + 7, white + 13));
+      if (black > 0) svg = svg.replace(/ffffff/g, url.substring(black + 7, black + 13));
+      res.writeHead(200, { 'Content-Type': 'image/svg+xml' });
+      res.write(svg);
+      res.end();
+      return;
+    }
+  }
+  next();
+});
+```
