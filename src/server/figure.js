@@ -5,16 +5,18 @@ const { object } = require('../shared/map');
 const ObjectClass = require('./object');
 
 class Figure extends ObjectClass {
-  constructor(PlayerID, x, y, figuretype) {
+  constructor(PlayerID, x, y, figuretype, color) {
     super(PlayerID, x, y);
     this.FigureID = shortid.generate();
     this.figureType = figuretype;
+    this.color = color;
     this.activationTime = Date.now();
+    this.selection = false;
     this.animation = {};
   }
 
   // Returns true if the figure should be destroyed
-  update(dt) {
+  update() {
     return false;
   }
 
@@ -38,6 +40,7 @@ class Figure extends ObjectClass {
       y: this.y,
       figureType: this.figureType,
       activationTime: this.activationTime,
+      color: this.color,
     };
     if (Object.keys(this.animation).length) {
       res.animation = this.animation;

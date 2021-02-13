@@ -2,6 +2,7 @@
 const Constants = require('../shared/constants');
 const Player = require('./player');
 require('../shared/map');
+const randomColor = require('randomcolor');
 const Figure = require('./figure');
 const { GameMap } = require('../shared/map');
 
@@ -32,9 +33,10 @@ class Game {
     const temp = this.gmap.randomCell();
     const x = temp[0];
     const y = temp[1];
-    this.players[socket.id] = new Player(socket.id, username, x, y);
+    const color = randomColor({ luminosity: 'bright', hue: 'random' }).substring(1);
+    this.players[socket.id] = new Player(socket.id, username, color, 1);
     // Create the figure at the random point
-    this.figures.push(new Figure(socket.id, x, y, Math.floor(Math.random() * Math.floor(4))));
+    this.figures.push(new Figure(socket.id, x, y, Math.floor(Math.random() * Math.floor(4)), color));
     this.shouldSendUpdate = true;
   }
 
@@ -42,6 +44,7 @@ class Game {
     this.figures.forEach(el => {
       if (el.PlayerID === socket.id) {
         el.PlayerID = 0;
+        el.color = 'C0C0C0';
       }
     });
     delete this.sockets[socket.id];
@@ -88,7 +91,7 @@ class Game {
   setupNeutralFigures() {
     for (let i = 0; i < this.gmap.CellsAmount / 2; i++) {
       const temp = this.gmap.randomCell();
-      this.figures.push(new Figure(0, temp[0], temp[1], 3));
+      this.figures.push(new Figure(0, temp[0], temp[1], 3, 'C0C0C0'));
       this.gmap.setupGlobalMap(this.figures);
     }
   }
@@ -107,7 +110,14 @@ class Game {
         if (mc) {
           mc.x = el.animation.x0;
           mc.y = el.animation.y0;
+          const p1 = this.players[el.PlayerID];
+          const p2 = this.players[mc.PlayerID];
+          console.log(p1, p2);
+          if (p1)p1.score++;
+          console.log(this.players[el.PlayerID].score);
+          if (p2)p2.score--;
           mc.PlayerID = el.PlayerID;
+          mc.color = el.color;
           this.setCooldown(mc);
         }
         const fig = this.figures[i];
@@ -121,7 +131,7 @@ class Game {
 
     const figuresToRemove = [];
     this.figures.forEach(figure => {
-      if (figure.update(dt)) {
+      if (figure.update()) {
         console.log(`destroy figure: ${figure.PlayerID}`);
         // Destroy this figure
         figuresToRemove.push(figure);

@@ -2,17 +2,16 @@ const ObjectClass = require('./object');
 const Constants = require('../shared/constants');
 
 class Player extends ObjectClass {
-  constructor(PlayerID, username) {
+  constructor(PlayerID, username, color, score) {
     super(PlayerID, 0, 0);
     this.username = username;
-    this.score = 0;
+    this.score = score;
+    this.color = color;
     this.alive = Date.now();
   }
 
   // Returns a newly created figure, or null.
   update(dt) {
-    // Update score
-    this.score += dt * Constants.SCORE_PER_SECOND;
     return null;
   }
 
@@ -21,6 +20,7 @@ class Player extends ObjectClass {
     return {
       PlayerID: this.PlayerID,
       username: this.username,
+      score: this.score,
     };
   }
 }

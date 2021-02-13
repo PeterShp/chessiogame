@@ -49,7 +49,7 @@ function render() {
         cam.clickedCellX = el.x;
         cam.clickedCellY = el.y;
       }
-      renderFigure(el.figureType, el.PlayerID === me.PlayerID ? 0 : 1, el.x, el.y, getPercent(el.activationTime - getServerTime(), el.figureType), el.PlayerID, el.hasOwnProperty('animation') ? el.animation : null);
+      renderFigure(el.figureType, el.PlayerID === me.PlayerID ? 0 : 1, el.x, el.y, getPercent(el.activationTime - getServerTime(), el.figureType), el.PlayerID, el.hasOwnProperty('animation') ? el.animation : null, el.color);
       if (el.x === cam.clickedCellX && el.y === cam.clickedCellY && el.PlayerID === me.PlayerID) {
         mover = el;
       }
@@ -82,9 +82,11 @@ function renderBackground() {
   context.resetTransform();
 }
 
-function renderFigure(figure, color, x, y, percent, plid, animation) {
+function renderFigure(figure, color, x, y, percent, plid, animation, rcolor) {
   const unit = gmap.UnitsList[figure];
-  const image = getAsset(unit.IMAGE[PlayOnWhiteSide ? color : 1 - color]);
+  console.log(rcolor);
+  const side = PlayOnWhiteSide ? color : 1 - color;
+  const image = getAsset(`${unit.IMAGE[side]}/white=${rcolor}`);
   if (animation) {
     let t = (animation.time - getServerTime()) / animation.timecd;
     if (t < 0) t = 0;
