@@ -11,5 +11,6 @@ module.exports = Object.freeze({
     GAME_OVER: 'dead',
     MOVE: 'move',
     ALIVE: '',
+    CHANGE: 'change',
   },
 });

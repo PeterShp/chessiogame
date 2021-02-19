@@ -23,6 +23,10 @@ class Game {
     this.gmap.setupFigures();
     this.gmap.setupSize();
     this.setupNeutralFigures();
+    this.sendupdate();
+  }
+
+  sendupdate() {
     this.shouldSendUpdate = true;
   }
 
@@ -36,8 +40,8 @@ class Game {
     const color = randomColor({ luminosity: 'bright', hue: 'random' }).substring(1);
     this.players[socket.id] = new Player(socket.id, username, color, 1);
     // Create the figure at the random point
-    this.figures.push(new Figure(socket.id, x, y, Math.floor(Math.random() * Math.floor(4)), color));
-    this.shouldSendUpdate = true;
+    this.figures.push(new Figure(socket.id, x, y, Math.floor(Math.random() * Math.floor(4)), color, true));
+    this.sendupdate();
   }
 
   removePlayer(socket) {
@@ -49,7 +53,7 @@ class Game {
     });
     delete this.sockets[socket.id];
     delete this.players[socket.id];
-    this.shouldSendUpdate = true;
+    this.sendupdate();
   }
 
   aliveAdd(id) {
@@ -81,7 +85,7 @@ class Game {
         }
       });
     }
-    this.shouldSendUpdate = true;
+    this.sendupdate();
   }
 
   getTime(x0, y0, x1, y1) {
@@ -91,9 +95,21 @@ class Game {
   setupNeutralFigures() {
     for (let i = 0; i < this.gmap.CellsAmount / 2; i++) {
       const temp = this.gmap.randomCell();
-      this.figures.push(new Figure(0, temp[0], temp[1], 3, 'C0C0C0'));
+      this.figures.push(new Figure(0, temp[0], temp[1], 3, 'C0C0C0', false));
       this.gmap.setupGlobalMap(this.figures);
     }
+  }
+
+  slectedChange(playerid, figureid) {
+    this.figures.forEach(figure => {
+      if (figure.PlayerID === playerid) {
+        const temp = figure.FigureID === figureid;
+        if (temp !== figure.isSelected) {
+          figure.isSelected = temp;
+          this.sendupdate();
+        }
+      }
+    });
   }
 
   update() {
@@ -112,12 +128,11 @@ class Game {
           mc.y = el.animation.y0;
           const p1 = this.players[el.PlayerID];
           const p2 = this.players[mc.PlayerID];
-          console.log(p1, p2);
           if (p1)p1.score++;
-          console.log(this.players[el.PlayerID].score);
           if (p2)p2.score--;
           mc.PlayerID = el.PlayerID;
           mc.color = el.color;
+          mc.ted = false;
           this.setCooldown(mc);
         }
         const fig = this.figures[i];
@@ -125,7 +140,7 @@ class Game {
         fig.y = el.animation.y1;
         this.setCooldown(fig);
         el.animation = {};
-        this.shouldSendUpdate = true;
+        this.sendupdate();
       }
     });
 
@@ -135,7 +150,7 @@ class Game {
         console.log(`destroy figure: ${figure.PlayerID}`);
         // Destroy this figure
         figuresToRemove.push(figure);
-        this.shouldSendUpdate = true;
+        this.sendupdate();
       }
     });
 
@@ -148,7 +163,7 @@ class Game {
       const newFigure = player.update(dt);
       if (newFigure) {
         this.figures.push(newFigure);
-        this.shouldSendUpdate = true;
+        this.sendupdate();
       }
     });
 
@@ -161,7 +176,7 @@ class Game {
             el.PlayerID = 0;
           }
         });
-        this.shouldSendUpdate = true;
+        this.sendupdate();
       }
     });
 
@@ -177,19 +192,19 @@ class Game {
       if (!temp) {
         socket.emit(Constants.MSG_TYPES.GAME_OVER);
         this.removePlayer(socket);
-        this.shouldSendUpdate = true;
+        this.sendupdate();
       }
     });
 
-    // Send a game update to each player every other time
+    // Send a game update to each player every other
     if (this.shouldSendUpdate) {
+      this.shouldSendUpdate = false;
       const leaderboard = this.getLeaderboard();
       Object.keys(this.sockets).forEach(playerID => {
         const socket = this.sockets[playerID];
         const player = this.players[playerID];
         socket.emit(Constants.MSG_TYPES.GAME_UPDATE, this.createUpdate(player, leaderboard));
       });
-      this.shouldSendUpdate = false;
     }
   }
 

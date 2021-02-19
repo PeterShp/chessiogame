@@ -38,3 +38,8 @@ export function moving(x0, y0, x1, y1) {
 export function alive() {
   socket.emit(Constants.MSG_TYPES.ALIVE, {});
 }
+
+export function changeSelected(_figureid) {
+  console.log('changeSelected', _figureid);
+  socket.emit(Constants.MSG_TYPES.CHANGE, { figureid: _figureid });
+}

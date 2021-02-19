@@ -55,6 +55,7 @@ io.on('connection', socket => {
   console.log('Player connected!', socket.id);
   // This is the place where we register all all message handlers
   // to handle messages from players.
+  socket.on(Constants.MSG_TYPES.CHANGE, selectedCheck);
   socket.on(Constants.MSG_TYPES.JOIN_GAME, joinGame);
   socket.on(Constants.MSG_TYPES.INPUT, handleInput);
   socket.on('disconnect', onDisconnect);
@@ -84,4 +85,8 @@ function handleMove(move) {
 
 function alivePlayer() {
   game.aliveAdd(this.id);
+}
+
+function selectedCheck(data) {
+  game.slectedChange(this.id, data.figureid);
 }

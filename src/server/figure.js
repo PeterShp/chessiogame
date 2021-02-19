@@ -5,13 +5,14 @@ const { object } = require('../shared/map');
 const ObjectClass = require('./object');
 
 class Figure extends ObjectClass {
-  constructor(PlayerID, x, y, figuretype, color) {
+  constructor(PlayerID, x, y, figuretype, color, isSelected) {
     super(PlayerID, x, y);
     this.FigureID = shortid.generate();
     this.figureType = figuretype;
     this.color = color;
     this.activationTime = Date.now();
     this.selection = false;
+    this.isSelected = isSelected;
     this.animation = {};
   }
 
@@ -41,6 +42,7 @@ class Figure extends ObjectClass {
       figureType: this.figureType,
       activationTime: this.activationTime,
       color: this.color,
+      isSelected: this.isSelected,
     };
     if (Object.keys(this.animation).length) {
       res.animation = this.animation;

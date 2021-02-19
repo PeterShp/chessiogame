@@ -45,22 +45,22 @@ function render() {
     renderBackground();
     figures.forEach(el => {
       if ((cam.clickedID === '' || cam.clickedID === el.FigureID) && el.PlayerID === me.PlayerID && !el.hasOwnProperty('animation')) {
-        cam.setCameraCellDestination(el.x, el.y);
+        if (cam.clickedID === '')cam.setCameraCellDestination(el.x, el.y);
         cam.clickedCellX = el.x;
         cam.clickedCellY = el.y;
       }
       renderFigure(el.figureType, el.PlayerID === me.PlayerID ? 0 : 1, el.x, el.y, getPercent(el.activationTime - getServerTime(), el.figureType), el.PlayerID, el.hasOwnProperty('animation') ? el.animation : null, el.color);
-      if (el.x === cam.clickedCellX && el.y === cam.clickedCellY && el.PlayerID === me.PlayerID) {
+      if (el.isSelected && el.PlayerID === me.PlayerID) {
         mover = el;
       }
     });
     if (mover) renderMoves(mover.x, mover.y);
   }
-  // renderMoves(0, 2, 1);
 }
 
 function setPing() {
   alive();
+  const { figures } = getCurrentState();
 }
 
 function renderBackground() {
@@ -84,7 +84,6 @@ function renderBackground() {
 
 function renderFigure(figure, color, x, y, percent, plid, animation, rcolor) {
   const unit = gmap.UnitsList[figure];
-  console.log(rcolor);
   const side = PlayOnWhiteSide ? color : 1 - color;
   const image = getAsset(`${unit.IMAGE[side]}/white=${rcolor}`);
   if (animation) {

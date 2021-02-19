@@ -22,6 +22,7 @@ export function getCurrentState() {
     return {};
   }
   const baseUpdate = gameUpdates[gameUpdates.length - 1];
+  //console.log(baseUpdate);
   return {
     me: baseUpdate.me,
     players: baseUpdate.players,
@@ -35,6 +36,7 @@ export function getCurrentState() {
 export function processGameUpdate(update) {
   lastservertime = update.t;
   lastmytime = Date.now();
+  console.log(update);
   gameUpdates.push(update);
   updateGmap(update.CellsAmount, update.CellSize, update.figures);
 
