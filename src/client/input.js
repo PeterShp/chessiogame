@@ -7,40 +7,48 @@ let mouseclicked = false;
 let xcam;
 let ycam;
 
-function onTouchInput(e) {
-  const touch = e.touches[0];
-  handleInput(touch.clientX, touch.clientY);
-}
-
-function handleInput(x, y) {
-  const cellx = cam.screenToCellX(x);
-  const celly = cam.screenToCellY(y);
+function mousedown(e) {
+  const cellx = cam.screenToCellX(e.x);
+  const celly = cam.screenToCellY(e.y);
+  const tempx = e.clientX;
+  const tempy = e.clientY;
   if (gmap.ownerCheck(cellx, celly)) {
     cam.clickedCellX = cellx;
     cam.clickedCellY = celly;
-    changeSelected(gmap.mapCell(cellx, celly).FigureID);
+    cam.dragx = tempx;
+    cam.dragy = tempy;
+    cam.draggedfigureid = gmap.mapCell(cellx, celly).FigureID;
+    changeSelected(cam.draggedfigureid);
   } else {
-    moving(cam.clickedCellX, cam.clickedCellY, cellx, celly);
+    xcam = tempx;
+    ycam = tempy;
   }
-}
-
-function mousedown(e) {
-  xcam = e.clientX;
-  ycam = e.clientY;
   mouseclicked = true;
 }
 
 function mouseup(e) {
-  handleInput(e.clientX, e.clientY);
+  const cellx = cam.screenToCellX(e.clientX);
+  const celly = cam.screenToCellY(e.clientY);
+  moving(cam.clickedCellX, cam.clickedCellY, cellx, celly);
+  if (cam.dragx !== -1 && cam.dragy !== -1) {
+    cam.droppedfigures[cam.draggedfigureid] = true;
+  }
+  cam.dragx = -1;
+  cam.dragy = -1;
   mouseclicked = false;
 }
 
 function onMousemove(e) {
   if (mouseclicked) {
-    cam.cameraDestinationX -= (e.clientX - xcam);
-    cam.cameraDestinationY -= (e.clientY - ycam);
-    cam.cameraX = cam.cameraDestinationX;
-    cam.cameraY = cam.cameraDestinationY;
+    if (cam.dragx === -1 && cam.dragy === -1) {
+      cam.cameraDestinationX -= (e.clientX - xcam);
+      cam.cameraDestinationY -= (e.clientY - ycam);
+      cam.cameraX = cam.cameraDestinationX;
+      cam.cameraY = cam.cameraDestinationY;
+    } else {
+      cam.dragx = e.clientX;
+      cam.dragy = e.clientY;
+    }
     xcam = e.clientX;
     ycam = e.clientY;
   }
@@ -48,8 +56,6 @@ function onMousemove(e) {
 
 export function startCapturingInput() {
   // window.addEventListener('mousemove', onMouseInput);
-  window.addEventListener('touchstart', onTouchInput);
-  window.addEventListener('touchmove', onTouchInput);
   window.addEventListener('mousedown', mousedown);
   window.addEventListener('mouseup', mouseup);
   window.addEventListener('mousemove', onMousemove);

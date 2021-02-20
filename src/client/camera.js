@@ -10,6 +10,10 @@ const object = {
   clickedCellX: -1,
   clickedCellY: -1,
   clickedID: '',
+  dragx: -1,
+  dragy: -1,
+  draggedfigureid: '',
+  droppedfigures: {},
 
   setCameraScreenDestination(scrX, scrY) {
     this.cameraDestinationX = this.cameraX + scrX - canvas.width / 2;

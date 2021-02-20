@@ -44,14 +44,12 @@ function render() {
     // Draw background
     renderBackground();
     figures.forEach(el => {
-      if ((cam.clickedID === '' || cam.clickedID === el.FigureID) && el.PlayerID === me.PlayerID && !el.hasOwnProperty('animation')) {
-        if (cam.clickedID === '')cam.setCameraCellDestination(el.x, el.y);
-        cam.clickedCellX = el.x;
-        cam.clickedCellY = el.y;
-      }
-      renderFigure(el.figureType, el.PlayerID === me.PlayerID ? 0 : 1, el.x, el.y, getPercent(el.activationTime - getServerTime(), el.figureType), el.PlayerID, el.hasOwnProperty('animation') ? el.animation : null, el.color);
+      if (cam.clickedID === '')cam.setCameraCellDestination(el.x, el.y);
+      renderFigure(el, el.PlayerID === me.PlayerID ? 0 : 1, el.hasOwnProperty('animation') ? el.animation : null, el.color, 0);
       if (el.isSelected && el.PlayerID === me.PlayerID) {
         mover = el;
+        cam.clickedCellX = el.x;
+        cam.clickedCellY = el.y;
       }
     });
     if (mover) renderMoves(mover.x, mover.y);
@@ -82,9 +80,11 @@ function renderBackground() {
   context.resetTransform();
 }
 
-function renderFigure(figure, color, x, y, percent, plid, animation, rcolor) {
-  const unit = gmap.UnitsList[figure];
+function renderFigure(el, color, animation, rcolor, pass) {
+  const unit = gmap.UnitsList[el.figureType];
+  let recurs = false;
   const side = PlayOnWhiteSide ? color : 1 - color;
+  const id = el.PlayerID;
   const image = getAsset(`${unit.IMAGE[side]}/white=${rcolor}`);
   if (animation) {
     let t = (animation.time - getServerTime()) / animation.timecd;
@@ -95,13 +95,24 @@ function renderFigure(figure, color, x, y, percent, plid, animation, rcolor) {
     let y1 = cam.CelltoScreenY(animation.y1);
     x1 += (x0 - x1) * t;
     y1 += (y0 - y1) * t;
-    context.translate(x1, y1);
+    const droppedid = cam.droppedfigures[el.FigureID];
+    if (droppedid && pass === 0) {
+      recurs = true;
+      context.globalAlpha = 0.7;
+      context.translate(cam.CelltoScreenX(animation.x1), cam.CelltoScreenY(animation.y1));
+    } else {
+      context.translate(x1, y1);
+    }
+    if (t < 0) cam.droppedfigures[el.FigureID] = null;
+  } else if (cam.draggedfigureid === el.FigureID && cam.dragx !== -1 && cam.dragy !== -1) {
+    context.translate(cam.dragx - (128 / 4), cam.dragy - (128 / 4));
   } else {
-    context.translate(cam.CelltoScreenX(x), cam.CelltoScreenY(y));
+    context.translate(cam.CelltoScreenX(el.x), cam.CelltoScreenY(el.y));
   }
 
   const scale = gmap.CellSize / image.width;
   context.scale(scale, scale);
+  const percent = getPercent(el.activationTime - getServerTime(), el.figureType);
   if (percent < 1) {
     const h = image.height * (1 - percent);
     context.beginPath();
@@ -112,12 +123,14 @@ function renderFigure(figure, color, x, y, percent, plid, animation, rcolor) {
     context.restore();
     context.globalAlpha = 0.3;
   }
-  if (plid === 0) {
-    context.globalAlpha = 0.4;
-  }
+  if (id === 0) context.globalAlpha = 0.4;
+  if (pass === 1) context.globalAlpha = 0.2;
   context.drawImage(image, 0, 0);
   context.resetTransform();
   context.globalAlpha = 1;
+  if (recurs) {
+    renderFigure(el, color, animation, rcolor, 1);
+  }
 }
 
 function renderMainMenu() {
