@@ -48,6 +48,7 @@ class Game {
     this.figures.forEach(el => {
       if (el.PlayerID === socket.id) {
         el.PlayerID = 0;
+        el.isSelected = false;
         el.color = 'C0C0C0';
       }
     });

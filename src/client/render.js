@@ -35,7 +35,8 @@ function setCanvasDimensions() {
 window.addEventListener('resize', debounce(40, setCanvasDimensions));
 
 function render() {
-  const { me, figures } = getCurrentState();
+  const { me, players, figures } = getCurrentState();
+  console.log(players);
   if (me) gmap.myPlayerID = me.PlayerID;
   let mover = null;
   if (figures) {
@@ -44,8 +45,12 @@ function render() {
     // Draw background
     renderBackground();
     figures.forEach(el => {
+      let un = '';
+      players.forEach(pl => {
+        if (pl.PlayerID === el.PlayerID) un = pl.username;
+      });
       if (cam.clickedID === '')cam.setCameraCellDestination(el.x, el.y);
-      renderFigure(el, el.PlayerID === me.PlayerID ? 0 : 1, el.hasOwnProperty('animation') ? el.animation : null, el.color, 0);
+      renderFigure(el, el.PlayerID === me.PlayerID ? 0 : 1, el.hasOwnProperty('animation') ? el.animation : null, el.color, 0, un, el.PlayerID !== me.PlayerID);
       if (el.isSelected && el.PlayerID === me.PlayerID) {
         mover = el;
         cam.clickedCellX = el.x;
@@ -58,7 +63,6 @@ function render() {
 
 function setPing() {
   alive();
-  const { figures } = getCurrentState();
 }
 
 function renderBackground() {
@@ -80,7 +84,7 @@ function renderBackground() {
   context.resetTransform();
 }
 
-function renderFigure(el, color, animation, rcolor, pass) {
+function renderFigure(el, color, animation, rcolor, pass, username, ismy) {
   const unit = gmap.UnitsList[el.figureType];
   let recurs = false;
   const side = PlayOnWhiteSide ? color : 1 - color;
@@ -128,6 +132,15 @@ function renderFigure(el, color, animation, rcolor, pass) {
   context.drawImage(image, 0, 0);
   context.resetTransform();
   context.globalAlpha = 1;
+  if (el.isSelected && ismy && !animation) {
+    context.translate(cam.CelltoScreenX(el.x) + gmap.CellSize / 2, cam.CelltoScreenY(el.y) + gmap.CellSize);
+    context.font = constants.FONT;
+    context.textAlign = 'center';
+    context.fillStyle = '#000000';
+    context.fillText(username, 0, 0);
+    console.log(el.isSelected);
+    context.resetTransform();
+  }
   if (recurs) {
     renderFigure(el, color, animation, rcolor, 1);
   }

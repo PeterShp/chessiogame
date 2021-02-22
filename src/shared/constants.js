@@ -4,6 +4,7 @@ module.exports = Object.freeze({
   MAXSIZE: 0.85,
   ANIMATIONDURATION: 100,
   WAITTIME: 10000,
+  FONT: '15px serif',
   MSG_TYPES: {
     JOIN_GAME: 'join_game',
     GAME_UPDATE: 'update',
