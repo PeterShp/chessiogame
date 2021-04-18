@@ -6,10 +6,40 @@ const cam = require('./camera').default.object;
 let mouseclicked = false;
 let xcam;
 let ycam;
+let clientx;
+let clienty;
+
+function updatexy(e) {
+  if (e.touches.length) {
+    clientx = e.touches[0].clientX;
+    clienty = e.touches[0].clientY;
+  }
+  e.clientX = clientx;
+  e.clientY = clienty;
+  console.log(e.clientX, e.clientY);
+}
+
+function touchstart(e) {
+  updatexy(e);
+  mousedown(e);
+}
+
+function touchend(e) {
+  updatexy(e);
+  mouseup(e);
+}
+
+function touchmove(e) {
+  updatexy(e);
+  onMousemove(e);
+}
 
 function mousedown(e) {
-  const cellx = cam.screenToCellX(e.x);
-  const celly = cam.screenToCellY(e.y);
+  const cellx = cam.screenToCellX(e.clientX);
+  const celly = cam.screenToCellY(e.clientY);
+
+  console.log('cells', cellx, celly);
+
   const tempx = e.clientX;
   const tempy = e.clientY;
   if (gmap.ownerCheck(cellx, celly)) {
@@ -71,6 +101,9 @@ export function startCapturingInput() {
   window.addEventListener('mouseup', mouseup);
   window.addEventListener('mousemove', onMousemove);
   window.addEventListener('wheel', zoom);
+  window.addEventListener('touchstart', touchstart);
+  window.addEventListener('touchend', touchend);
+  window.addEventListener('touchmove', touchmove);
 }
 
 export function stopCapturingInput() {
@@ -79,4 +112,7 @@ export function stopCapturingInput() {
   window.removeEventListener('mouseup', mouseup);
   window.removeEventListener('mousemove', onMousemove);
   window.removeEventListener('wheel', zoom);
+  window.removeEventListener('touchstart', touchstart);
+  window.removeEventListener('touchend', touchend);
+  window.removeEventListener('touchmove', touchmove);
 }
