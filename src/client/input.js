@@ -39,19 +39,30 @@ function mouseup(e) {
 }
 
 function onMousemove(e) {
+  const tempx = e.clientX;
+  const tempy = e.clientY;
   if (mouseclicked) {
     if (cam.dragx === -1 && cam.dragy === -1) {
-      cam.cameraDestinationX -= (e.clientX - xcam);
-      cam.cameraDestinationY -= (e.clientY - ycam);
+      cam.cameraDestinationX -= (tempx - xcam);
+      cam.cameraDestinationY -= (tempy - ycam);
       cam.cameraX = cam.cameraDestinationX;
       cam.cameraY = cam.cameraDestinationY;
     } else {
-      cam.dragx = e.clientX;
-      cam.dragy = e.clientY;
+      cam.dragx = tempx;
+      cam.dragy = tempy;
     }
-    xcam = e.clientX;
-    ycam = e.clientY;
+    xcam = tempx;
+    ycam = tempy;
   }
+}
+
+function zoom(e) {
+  cam.camscale += e.deltaY / 2 * -0.001;
+  console.log(e);
+  cam.cameraDestinationX = e.clientX;
+  cam.cameraDestinationY = e.clientY;
+  cam.cameraX = cam.cameraDestinationX;
+  cam.cameraY = cam.cameraDestinationY;
 }
 
 export function startCapturingInput() {
@@ -59,10 +70,13 @@ export function startCapturingInput() {
   window.addEventListener('mousedown', mousedown);
   window.addEventListener('mouseup', mouseup);
   window.addEventListener('mousemove', onMousemove);
+  window.addEventListener('wheel', zoom);
 }
 
 export function stopCapturingInput() {
   // window.removeEventListener('mousemove', onMouseInput);
-  window.removeEventListener('touchstart', onTouchInput);
-  window.removeEventListener('touchmove', onTouchInput);
+  window.removeEventListener('mousedown', mousedown);
+  window.removeEventListener('mouseup', mouseup);
+  window.removeEventListener('mousemove', onMousemove);
+  window.removeEventListener('wheel', zoom);
 }

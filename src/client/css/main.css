@@ -112,6 +112,46 @@ button:focus {
   text-align: center;
 }
 
+#loose-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.75);
+}
+
+#loose-modal > div {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translateY(-50%) translateX(-50%);
+  padding: 15px 20px;
+  background-color: white;
+  border-radius: 5px;
+  text-align: center;
+}
+
+#win-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.75);
+}
+
+#win-modal > div {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translateY(-50%) translateX(-50%);
+  padding: 15px 20px;
+  background-color: white;
+  border-radius: 5px;
+  text-align: center;
+}
+
 @media screen and (max-width: 640px) {
   h1 {
     font-size: 2rem;
@@ -127,6 +167,16 @@ button:focus {
   }
 
   #disconnect-modal > div {
+    padding: 10px;
+    min-width: 280px;
+  }
+
+  #loose-modal > div {
+    padding: 10px;
+    min-width: 280px;
+  }
+
+  #win-modal > div {
     padding: 10px;
     min-width: 280px;
   }

@@ -1,3 +1,4 @@
+/* eslint-disable no-param-reassign */
 /* eslint-disable class-methods-use-this */
 const Constants = require('../shared/constants');
 const Player = require('./player');
@@ -19,10 +20,10 @@ class Game {
     this.figures = [];
     this.lastUpdateTime = Date.now();
     setInterval(this.update.bind(this), 1000 / 20);
-    this.gmap = new GameMap(12, 70);
+    this.gmap = new GameMap(15, 70);
     this.gmap.setupFigures();
-    this.gmap.setupSize();
     this.setupNeutralFigures();
+    this.gmap.setupSize();
     this.sendupdate();
   }
 
@@ -32,16 +33,20 @@ class Game {
 
   addPlayer(socket, username) {
     this.sockets[socket.id] = socket;
-
     // Generate a position to start this player at.
-    const temp = this.gmap.randomCell();
-    const x = temp[0];
-    const y = temp[1];
+    const temp = this.findFreeFigure();
     const color = randomColor({ luminosity: 'bright', hue: 'random' }).substring(1);
-    this.players[socket.id] = new Player(socket.id, username, color, 1);
-    // Create the figure at the random point
-    this.figures.push(new Figure(socket.id, x, y, Math.floor(Math.random() * Math.floor(4)), color, true));
-    this.sendupdate();
+    if (temp) {
+      temp.PlayerID = socket.id;
+      this.players[socket.id] = new Player(socket.id, username, color, 1);
+      // Create the figure at the random point
+      temp.color = color;
+      temp.isSelected = true;
+      this.sendupdate();
+    } else {
+      const rand = this.gmap.randomCell();
+      this.figures.push(socket.id, rand[0], rand[1], Math.floor(Math.random() * this.gmap.UnitsList.length - 0.000001), color, true);
+    }
   }
 
   removePlayer(socket) {
@@ -65,9 +70,25 @@ class Game {
     });
   }
 
+  findFreeFigure() {
+    const figur = this.figures.find(figure => figure.PlayerID === 0);
+    if (figur) {
+      return figur;
+    }
+    return false;
+  }
+
   setCooldown(element) {
     // eslint-disable-next-line no-param-reassign
-    element.activationTime = Date.now() + this.gmap.UnitsList[element.figureType].COOLDOWN;
+    let plscore = 1;
+    const tempplayer = this.players[element.PlayerID];
+    if (tempplayer) {
+      plscore = tempplayer.score;
+      element.cooldown = this.gmap.UnitsList[element.figureType].COOLDOWN * Math.sqrt(plscore);
+      element.activationTime = Date.now() + this.gmap.UnitsList[element.figureType].COOLDOWN * Math.sqrt(plscore);
+    } else {
+      element.activationTime = 0;
+    }
   }
 
   makeMove(PlayerID, x0, y0, x1, y1) {
@@ -94,9 +115,9 @@ class Game {
   }
 
   setupNeutralFigures() {
-    for (let i = 0; i < this.gmap.CellsAmount / 2; i++) {
+    for (let i = 0; i < this.gmap.CellsAmount; i++) {
       const temp = this.gmap.randomCell();
-      this.figures.push(new Figure(0, temp[0], temp[1], 3, 'C0C0C0', false));
+      this.figures.push(new Figure(0, temp[0], temp[1], Math.floor(Math.random() * this.gmap.UnitsList.length - 0.000001), 'C0C0C0', false));
       this.gmap.setupGlobalMap(this.figures);
     }
   }
@@ -168,7 +189,8 @@ class Game {
       }
     });
 
-    // Checks if player is online
+    // Checks if player is online & if he won
+    let winner = null;
 
     Object.values(this.players).forEach(pla => {
       if (Date.now() - pla.alive > Constants.WAITTIME) {
@@ -177,6 +199,24 @@ class Game {
             el.PlayerID = 0;
           }
         });
+        this.sendupdate();
+      }
+      let temp = 0;
+      this.figures.forEach(el => {
+        if (el.PlayerID && el.PlayerID !== pla.PlayerID) {
+          temp++;
+        }
+      });
+      if (temp) this.gameStared = true;
+
+      if (this.gameStared && !temp) {
+        this.figures.forEach(el => {
+          if (el.PlayerID === pla.PlayerID) {
+            winner = el.PlayerID;
+            el.PlayerID = 0;
+          }
+        });
+        this.gameStared = false;
         this.sendupdate();
       }
     });
@@ -191,7 +231,7 @@ class Game {
         }
       });
       if (!temp) {
-        socket.emit(Constants.MSG_TYPES.GAME_OVER);
+        socket.emit(winner === ID ? Constants.MSG_TYPES.YOU_WON : Constants.MSG_TYPES.GAME_OVER);
         this.removePlayer(socket);
         this.sendupdate();
       }

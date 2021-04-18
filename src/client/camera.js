@@ -14,6 +14,7 @@ const object = {
   dragy: -1,
   draggedfigureid: '',
   droppedfigures: {},
+  camscale: 1,
 
   setCameraScreenDestination(scrX, scrY) {
     this.cameraDestinationX = this.cameraX + scrX - canvas.width / 2;
@@ -45,19 +46,19 @@ const object = {
   },
 
   CelltoScreenX(x) {
-    return canvas.width / 2 + x * gmap.CellSize - this.cameraX;
+    return (canvas.width / 2 + x * gmap.CellSize - this.cameraX) * this.camscale;
   },
 
   CelltoScreenY(y) {
-    return canvas.height / 2 + y * gmap.CellSize - this.cameraY;
+    return (canvas.height / 2 + y * gmap.CellSize - this.cameraY) * this.camscale;
   },
 
   screenToCellX(x) {
-    return Math.floor((x - canvas.width / 2 + this.cameraX) / gmap.CellSize);
+    return Math.floor((x / this.camscale - canvas.width / 2 + this.cameraX) / gmap.CellSize);
   },
 
   screenToCellY(y) {
-    return Math.floor((y - canvas.height / 2 + this.cameraY) / gmap.CellSize);
+    return Math.floor((y / this.camscale - canvas.height / 2 + this.cameraY) / gmap.CellSize);
   },
 };
 

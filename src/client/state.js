@@ -36,7 +36,6 @@ export function getCurrentState() {
 export function processGameUpdate(update) {
   lastservertime = update.t;
   lastmytime = Date.now();
-  console.log(update);
   gameUpdates.push(update);
   updateGmap(update.CellsAmount, update.CellSize, update.figures);
 

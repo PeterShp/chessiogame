@@ -1,5 +1,4 @@
 module.exports = Object.freeze({
-  SCORE_PER_SECOND: 1,
   MINSIZE: 0.15,
   MAXSIZE: 0.85,
   ANIMATIONDURATION: 100,
@@ -9,9 +8,10 @@ module.exports = Object.freeze({
     JOIN_GAME: 'join_game',
     GAME_UPDATE: 'update',
     INPUT: 'input',
-    GAME_OVER: 'dead',
     MOVE: 'move',
     ALIVE: '',
     CHANGE: 'change',
+    YOU_WON: 'youwon',
+    GAME_OVER: 'dead',
   },
 });

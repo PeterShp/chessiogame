@@ -9,6 +9,7 @@ class Figure extends ObjectClass {
     super(PlayerID, x, y);
     this.FigureID = shortid.generate();
     this.figureType = figuretype;
+    this.cooldown = 0;
     this.color = color;
     this.activationTime = Date.now();
     this.selection = false;
@@ -39,6 +40,7 @@ class Figure extends ObjectClass {
       FigureID: this.FigureID,
       x: this.x,
       y: this.y,
+      cooldown: this.cooldown,
       figureType: this.figureType,
       activationTime: this.activationTime,
       color: this.color,

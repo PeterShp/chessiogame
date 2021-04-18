@@ -36,7 +36,6 @@ window.addEventListener('resize', debounce(40, setCanvasDimensions));
 
 function render() {
   const { me, players, figures } = getCurrentState();
-  console.log(players);
   if (me) gmap.myPlayerID = me.PlayerID;
   let mover = null;
   if (figures) {
@@ -73,10 +72,10 @@ function renderBackground() {
   const bgy = canvas.height / 2 - cam.cameraY;
   const chessbg = context.createPattern(getAsset('chessboard.png'), 'repeat');
   context.fillStyle = chessbg;
-  context.translate(bgx, bgy);
+  context.translate(bgx * cam.camscale, bgy * cam.camscale);
   const scale = gmap.CellSize / 128;
   const w1 = gmap.mapSize / scale;
-  context.scale(scale, scale);
+  context.scale(scale * cam.camscale, scale * cam.camscale);
   context.fillRect(0, 0, w1, w1);
   context.strokeStyle = 'black';
   context.lineWidth = 5;
@@ -109,14 +108,14 @@ function renderFigure(el, color, animation, rcolor, pass, username, ismy) {
     }
     if (t < 0) cam.droppedfigures[el.FigureID] = null;
   } else if (cam.draggedfigureid === el.FigureID && cam.dragx !== -1 && cam.dragy !== -1) {
-    context.translate(cam.dragx - (128 / 4), cam.dragy - (128 / 4));
+    context.translate(cam.dragx - (128 / 4) * cam.camscale, cam.dragy - (128 / 4) * cam.camscale);
   } else {
     context.translate(cam.CelltoScreenX(el.x), cam.CelltoScreenY(el.y));
   }
 
   const scale = gmap.CellSize / image.width;
-  context.scale(scale, scale);
-  const percent = getPercent(el.activationTime - getServerTime(), el.figureType);
+  context.scale(scale * cam.camscale, scale * cam.camscale);
+  const percent = getPercent(el.activationTime - getServerTime(), el.cooldown);
   if (percent < 1) {
     const h = image.height * (1 - percent);
     context.beginPath();
@@ -133,12 +132,11 @@ function renderFigure(el, color, animation, rcolor, pass, username, ismy) {
   context.resetTransform();
   context.globalAlpha = 1;
   if (el.isSelected && ismy && !animation) {
-    context.translate(cam.CelltoScreenX(el.x) + gmap.CellSize / 2, cam.CelltoScreenY(el.y) + gmap.CellSize);
+    context.translate(cam.CelltoScreenX(el.x) + (gmap.CellSize / 2) * cam.camscale, cam.CelltoScreenY(el.y) + (gmap.CellSize * cam.camscale));
     context.font = constants.FONT;
     context.textAlign = 'center';
     context.fillStyle = '#000000';
     context.fillText(username, 0, 0);
-    console.log(el.isSelected);
     context.resetTransform();
   }
   if (recurs) {
@@ -166,7 +164,7 @@ function renderMoves(x, y) {
       const mc = gmap.mapCell(x1, y1);
       context.translate(cam.CelltoScreenX(x1), cam.CelltoScreenY(y1));
       const scale = gmap.CellSize / image.width;
-      context.scale(scale, scale);
+      context.scale(scale * cam.camscale, scale * cam.camscale);
       if (mc && mc.PlayerID !== gmap.myPlayerID) {
         context.drawImage(imageenemy, 0, 0);
       } else {
@@ -179,8 +177,8 @@ function renderMoves(x, y) {
 }
 
 
-function getPercent(time, figure) {
-  const temp = constants.MINSIZE + (constants.MAXSIZE - constants.MINSIZE) * (1 - (time / gmap.UnitsList[figure].COOLDOWN));
+function getPercent(time, cooldown) {
+  const temp = constants.MINSIZE + (constants.MAXSIZE - constants.MINSIZE) * (1 - (time / cooldown));
   if (temp > 1) return 1;
   if (temp < 0) return 0;
   return temp;

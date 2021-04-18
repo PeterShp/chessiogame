@@ -3,8 +3,8 @@ const express = require('express');
 const webpack = require('webpack');
 const webpackDevMiddleware = require('webpack-dev-middleware');
 const socketio = require('socket.io');
-
 const fs = require('fs');
+const { SSL_OP_SSLEAY_080_CLIENT_DH_BUG } = require('constants');
 const Constants = require('../shared/constants');
 const Game = require('./game');
 const webpackConfig = require('../../webpack.dev.js');
@@ -65,28 +65,71 @@ io.on('connection', socket => {
 });
 
 // Setup the Game
-const game = new Game();
+const game = [];
 
 function joinGame(username) {
-  game.addPlayer(this, username);
+  cleanup();
+  let check = true;
+  game.forEach(el => {
+    if (el) {
+      if (el.findFreeFigure()) {
+        check = false;
+        el.addPlayer(this, username);
+      }
+    } else {
+      game.push(new Game());
+      game[game.length - 1].addPlayer(this, username);
+    }
+  });
+  if (check) {
+    game.push(new Game());
+    game[game.length - 1].addPlayer(this, username);
+  }
 }
 
 function handleInput(dir) {
-  game.handleInput(this, dir);
+  cleanup();
+  const gg = getGame(this.id);
+  if (gg) gg.handleInput(this, dir);
+  else return null;
 }
 
 function onDisconnect() {
-  game.removePlayer(this);
+  const gg = getGame(this.id);
+  if (gg) gg.removePlayer(this);
+  else return null;
+  cleanup();
 }
 
 function handleMove(move) {
-  game.makeMove(this.id, move.X0, move.Y0, move.X1, move.Y1);
+  cleanup();
+  const gg = getGame(this.id);
+  if (gg) gg.makeMove(this.id, move.X0, move.Y0, move.X1, move.Y1);
+  else return null;
 }
 
 function alivePlayer() {
-  game.aliveAdd(this.id);
+  cleanup();
+  const gg = getGame(this.id);
+  if (gg) gg.aliveAdd(this.id);
 }
 
 function selectedCheck(data) {
-  game.slectedChange(this.id, data.figureid);
+  cleanup();
+  const gg = getGame(this.id);
+  if (gg) gg.slectedChange(this.id, data.figureid);
+}
+
+function getGame(plid) {
+  cleanup();
+  return game.find(game => game.players[plid]);
+}
+
+function cleanup() {
+  game.forEach((gm, i) => {
+    if (!Object.keys(gm.players).length) {
+      console.log('spliced', Object.keys(gm.players));
+      game.splice(i, 1);
+    }
+  });
 }

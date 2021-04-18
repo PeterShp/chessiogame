@@ -40,16 +40,20 @@
   </div>
   <div id="disconnect-modal" class="hidden">
     <div>
-      <h2 id = gameover></h2>
-      <hr />
-      <button id="reconnect-button">RECONNECT</button>
+      <h1>Disconnected</h1>
+      <button onclick = "window.location.reload()">RECONNECT</button>
     </div>
   </div>
-  <div id="game-over" class="hidden">
-    <hr />
-      <button id="reconnect-button">Try again</button>
+  <div id="loose-modal" class="hidden">
     <div>
-      <h2>Game over</h2>
+      <h1>Game over</h1>
+      <button onclick = "window.location.reload()">RECONNECT</button>
+    </div>
+  </div>
+  <div id="win-modal" class="hidden">
+    <div>
+      <h1>You win!</h1>
+      <button onclick = "window.location.reload()">RECONNECT</button>
     </div>
   </div>
 </body>
