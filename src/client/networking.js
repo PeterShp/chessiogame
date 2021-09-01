@@ -43,6 +43,5 @@ export function alive() {
 }
 
 export function changeSelected(_figureid) {
-  console.log('changeSelected', _figureid);
   socket.emit(Constants.MSG_TYPES.CHANGE, { figureid: _figureid });
 }

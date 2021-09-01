@@ -16,7 +16,6 @@ function updatexy(e) {
   }
   e.clientX = clientx;
   e.clientY = clienty;
-  console.log(e.clientX, e.clientY);
 }
 
 function touchstart(e) {
@@ -37,8 +36,6 @@ function touchmove(e) {
 function mousedown(e) {
   const cellx = cam.screenToCellX(e.clientX);
   const celly = cam.screenToCellY(e.clientY);
-
-  console.log('cells', cellx, celly);
 
   const tempx = e.clientX;
   const tempy = e.clientY;
@@ -88,7 +85,6 @@ function onMousemove(e) {
 
 function zoom(e) {
   cam.camscale += e.deltaY / 2 * -0.001;
-  console.log(e);
   cam.cameraDestinationX = e.clientX;
   cam.cameraDestinationY = e.clientY;
   cam.cameraX = cam.cameraDestinationX;

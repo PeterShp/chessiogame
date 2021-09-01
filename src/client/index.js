@@ -10,6 +10,7 @@ import './css/main.css';
 const cam = require('./camera').default.object;
 
 const playMenu = document.getElementById('play-menu');
+const shareButtons = document.getElementById('share-buttons');
 const playButton = document.getElementById('play-button');
 const usernameInput = document.getElementById('username-input');
 const kingw = document.getElementById('king-w');
@@ -20,6 +21,7 @@ Promise.all([
   downloadAssets(),
 ]).then(() => {
   playMenu.classList.remove('hidden');
+  shareButtons.classList.remove('hidden');
   usernameInput.focus();
   kingw.style.border = '1px solid black';
   playButton.style.border = '1px solid black';
@@ -40,6 +42,7 @@ Promise.all([
     // Play!
     play(usernameInput.value);
     playMenu.classList.add('hidden');
+    shareButtons.classList.add('hidden');
     startCapturingInput();
     startRendering();
     setLeaderboardHidden(false);
@@ -51,5 +54,6 @@ function onGameOver() {
   stopCapturingInput();
   stopRendering();
   playMenu.classList.remove('hidden');
+  shareButtons.classList.remove('hidden');
   setLeaderboardHidden(true);
 }

@@ -15,16 +15,6 @@ class GameMap {
     this.mapSize = this.CellSize * this.CellsAmount;
   }
 
-  randomCell() {
-    while (true) {
-      const x = Math.floor(Math.random() * Math.floor(this.CellsAmount));
-      const y = Math.floor(Math.random() * Math.floor(this.CellsAmount));
-      if (!this.mapCell(x, y)) {
-        return [x, y];
-      }
-    }
-  }
-
   inMap(x, y) {
     return x >= 0 && y >= 0 && x < this.CellsAmount && y < this.CellsAmount;
   }
@@ -89,8 +79,8 @@ class GameMap {
     const temp = [];
     if (this.inMap(x0, y0)) {
       const obj = this.mapCell(x0, y0);
-      const killmoves = this.UnitsList[obj.figureType].KILLS;
       if (obj) {
+        const killmoves = this.UnitsList[obj.figureType].KILLS;
         const moves = this.UnitsList[obj.figureType].TURNS;
         // eslint-disable-next-line no-restricted-syntax
         for (const branch of moves) {
@@ -102,7 +92,7 @@ class GameMap {
             const y1 = y0 + dy * i;
             const mc = this.mapCell(x1, y1);
             if (mc) {
-              if (mc.PlayerID === obj.PlayerID || killmoves.length) break;
+              if ((mc.PlayerID === obj.PlayerID || killmoves.length) && !(mc.PlayerID === 0 && obj.PlayerID === 0)) break;
               temp.push([x1, y1]);
               break;
             }
@@ -119,7 +109,7 @@ class GameMap {
             const y1 = y0 + dy * i;
             const mc = this.mapCell(x1, y1);
             if (mc) {
-              if (mc.PlayerID === obj.PlayerID) break;
+              if (mc.PlayerID === obj.PlayerID && !(mc.PlayerID === 0 && obj.PlayerID === 0)) break;
               temp.push([x1, y1]);
               break;
             }

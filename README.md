@@ -115,8 +115,8 @@ function handleMove(move) {
     this.sockets[socket.id] = socket;
 
     // Generate a position to start this player at.
-    const x = gmap.randomCell();
-    const y = gmap.randomCell();
+    const x = this.randomCell();
+    const y = this.randomCell();
     this.players[socket.id] = new Player(socket.id, username, x, y);
     // Create the figure at the random point
     this.figures.push(new Figure(socket.id, x, y, Math.floor(Math.random() * Math.floor(4))));

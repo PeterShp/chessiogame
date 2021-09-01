@@ -20,7 +20,7 @@ class Game {
     this.figures = [];
     this.lastUpdateTime = Date.now();
     setInterval(this.update.bind(this), 1000 / 20);
-    this.gmap = new GameMap(15, 70);
+    this.gmap = new GameMap(20, 70);
     this.gmap.setupFigures();
     this.setupNeutralFigures();
     this.gmap.setupSize();
@@ -44,8 +44,11 @@ class Game {
       temp.isSelected = true;
       this.sendupdate();
     } else {
-      const rand = this.gmap.randomCell();
-      this.figures.push(socket.id, rand[0], rand[1], Math.floor(Math.random() * this.gmap.UnitsList.length - 0.000001), color, true);
+      const rand = this.randomCell();
+      if (rand) {
+        // eslint-disable-next-line max-len
+        this.figures.push(socket.id, rand[0], rand[1], Math.floor(Math.random() * this.gmap.UnitsList.length - 0.000001), color, true);
+      }
     }
   }
 
@@ -71,11 +74,25 @@ class Game {
   }
 
   findFreeFigure() {
-    const figur = this.figures.find(figure => figure.PlayerID === 0);
-    if (figur) {
-      return figur;
-    }
-    return false;
+    let res = null;
+    this.figures.forEach(figur => {
+      if (figur.PlayerID === 0) {
+        let temp = true;
+        console.log(this.figures.length);
+        this.figures.forEach(fig => {
+          this.gmap.availableMoves(fig.x, fig.y).forEach(move => {
+            if (move[0] === figur.x && move[1] === figur.y && figur !== fig) {
+              console.log(move[0], figur.x, move[1], figur.y, fig.x, fig.y);
+              temp = false;
+            }
+          });
+        });
+        if (temp) {
+          res = figur;
+        }
+      }
+    });
+    return res;
   }
 
   setCooldown(element) {
@@ -89,6 +106,28 @@ class Game {
     } else {
       element.activationTime = 0;
     }
+  }
+
+  randomCell(iterations = 100) {
+    for (let i = 0; i < iterations; i++) {
+      const x = Math.floor(Math.random() * Math.floor(this.gmap.CellsAmount));
+      const y = Math.floor(Math.random() * Math.floor(this.gmap.CellsAmount));
+      const fig = this.gmap.mapCell(x, y);
+      let temp = true;
+      if (!fig) {
+        this.figures.forEach(figure => {
+          this.gmap.availableMoves(figure.x, figure.y).forEach(move => {
+            if (move[0] === x && move[1] === y) {
+              temp = false;
+            }
+          });
+        });
+        if (temp) {
+          return [x, y];
+        }
+      }
+    }
+    return false;
   }
 
   makeMove(PlayerID, x0, y0, x1, y1) {
@@ -115,10 +154,12 @@ class Game {
   }
 
   setupNeutralFigures() {
-    for (let i = 0; i < this.gmap.CellsAmount; i++) {
-      const temp = this.gmap.randomCell();
-      this.figures.push(new Figure(0, temp[0], temp[1], Math.floor(Math.random() * this.gmap.UnitsList.length - 0.000001), 'C0C0C0', false));
-      this.gmap.setupGlobalMap(this.figures);
+    for (let i = 0; i < this.gmap.CellsAmount * 2; i++) {
+      const temp = this.randomCell();
+      if (temp) {
+        this.figures.push(new Figure(0, temp[0], temp[1], Math.floor(Math.random() * this.gmap.UnitsList.length - 0.000001), 'C0C0C0', false));
+        this.gmap.setupGlobalMap(this.figures);
+      }
     }
   }
 
@@ -166,6 +207,31 @@ class Game {
       }
     });
 
+    // Autoattack enemy
+    this.figures.forEach(figure => {
+      if (!figure.PlayerID) {
+        this.gmap.availableMoves(figure.x, figure.y).forEach(move => {
+          const cell = this.gmap.mapCell(move[0], move[1]);
+          if (cell && cell.PlayerID === 0) {
+            const step = this.gmap.availableMoves(cell.x, cell.y);
+            if (step.length) {
+              for (let i = 0; i < step.length * step.length; i++) {
+                const j = Math.floor(Math.random() * Math.floor(step.length));
+                if (!this.gmap.mapCell(step[j][0], step[j][1])) {
+                  this.makeMove(0, figure.x, figure.y, step[j][0], step[j][1]);
+                  break;
+                }
+              }
+            }
+          } else if (cell && cell.PlayerID) {
+            this.makeMove(0, figure.x, figure.y, move[0], move[1]);
+            this.sendupdate();
+          }
+        });
+      }
+    });
+
+    // Finds fugures to remove
     const figuresToRemove = [];
     this.figures.forEach(figure => {
       if (figure.update()) {
