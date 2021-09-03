@@ -20,7 +20,7 @@ class Game {
     this.figures = [];
     this.lastUpdateTime = Date.now();
     setInterval(this.update.bind(this), 1000 / 20);
-    this.gmap = new GameMap(20, 70);
+    this.gmap = new GameMap(15, 70);
     this.gmap.setupFigures();
     this.setupNeutralFigures();
     this.gmap.setupSize();
@@ -78,11 +78,9 @@ class Game {
     this.figures.forEach(figur => {
       if (figur.PlayerID === 0) {
         let temp = true;
-        console.log(this.figures.length);
         this.figures.forEach(fig => {
           this.gmap.availableMoves(fig.x, fig.y).forEach(move => {
             if (move[0] === figur.x && move[1] === figur.y && figur !== fig) {
-              console.log(move[0], figur.x, move[1], figur.y, fig.x, fig.y);
               temp = false;
             }
           });
@@ -154,7 +152,7 @@ class Game {
   }
 
   setupNeutralFigures() {
-    for (let i = 0; i < this.gmap.CellsAmount * 2; i++) {
+    for (let i = 0; i < this.gmap.CellsAmount; i++) {
       const temp = this.randomCell();
       if (temp) {
         this.figures.push(new Figure(0, temp[0], temp[1], Math.floor(Math.random() * this.gmap.UnitsList.length - 0.000001), 'C0C0C0', false));
@@ -235,7 +233,6 @@ class Game {
     const figuresToRemove = [];
     this.figures.forEach(figure => {
       if (figure.update()) {
-        console.log(`destroy figure: ${figure.PlayerID}`);
         // Destroy this figure
         figuresToRemove.push(figure);
         this.sendupdate();

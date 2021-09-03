@@ -35,7 +35,6 @@ function setCanvasDimensions() {
 window.addEventListener('resize', debounce(40, setCanvasDimensions));
 
 function render() {
-  // console.log(window.devicePixelRatio);
   const { me, players, figures } = getCurrentState();
   if (me) gmap.myPlayerID = me.PlayerID;
   let mover = null;

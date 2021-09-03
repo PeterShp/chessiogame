@@ -52,7 +52,7 @@ const io = socketio(server);
 
 // Listen for socket.io connections, look Constants.js, MSG_TYPES for message types
 io.on('connection', socket => {
-  console.log('Player connected!', socket.id);
+  console.log(`[${new Date().toUTCString()}]`, 'Player connected!', socket.id);
   // This is the place where we register all all message handlers
   // to handle messages from players.
   socket.on(Constants.MSG_TYPES.CHANGE, selectedCheck);
@@ -95,6 +95,7 @@ function handleInput(dir) {
 }
 
 function onDisconnect() {
+  console.log(`[${new Date().toUTCString()}]`, 'Player disconnected!', this.id);
   const gg = getGame(this.id);
   if (gg) gg.removePlayer(this);
   else return null;
@@ -128,7 +129,6 @@ function getGame(plid) {
 function cleanup() {
   game.forEach((gm, i) => {
     if (!Object.keys(gm.players).length) {
-      console.log('spliced', Object.keys(gm.players));
       game.splice(i, 1);
     }
   });

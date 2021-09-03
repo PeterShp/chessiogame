@@ -22,7 +22,6 @@ export function getCurrentState() {
     return {};
   }
   const baseUpdate = gameUpdates[gameUpdates.length - 1];
-  // console.log(baseUpdate);
   return {
     me: baseUpdate.me,
     players: baseUpdate.players,

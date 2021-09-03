@@ -7,7 +7,6 @@ function downloadAsset(assetName) {
     assets[assetName] = new Image(1, 1);// temporary image. placed there unlil actually downloaded
     asset.src = `/${assetName}`;
     asset.onload = () => {
-      console.log(`Downloaded ${assetName}`);
       assets[assetName] = asset;
       resolve();
     };
